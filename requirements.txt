@@ -1,0 +1,18 @@
+# Examples for the Discord bridge. Remove the lines you don't need.
+# REQUIRED for text chat:
+python-dotenv>=1.0.0
+discord.py>=2.3.0
+
+# REQUIRED for voice-channel listening (claiming Vosk audio in a VC):
+discord-ext-voice-recv>=0.2.0
+davey>=1.0.0
+vosk>=0.3.45
+# Python 3.13 removed the stdlib audioop module; this backport restores it.
+audioop-lts; python_version >= "3.13"
+
+# Recommended for nicer console output:
+rich>=13.0.0
+
+# NOTE: discord.py / voice-recv stream audio out via FFmpeg.
+# Install FFmpeg yourself and make sure `ffmpeg` is on your PATH
+# (https://ffmpeg.org/download.html). The bridge uses FFmpegOpusAudio.

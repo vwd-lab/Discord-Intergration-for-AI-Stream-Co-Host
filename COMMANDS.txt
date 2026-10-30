@@ -1,0 +1,77 @@
+================================================================================
+ COMMANDS - Discord integration (standalone share kit)
+================================================================================
+In any allowed text channel (must match DISCORD_TEXT_CHANNEL_IDS), the bridge
+responds to:
+
+  @Bot Name <msg>      Talk to the bot. Mention it by name, then a message.
+  Bot name anywhere    Saying the bot's name anywhere in your message gets its
+                       attention — no @ needed. Case-insensitive, word-boundary
+                       matched, and the name is stripped from what's forwarded
+                       to on_text(). Set the name via mention_name (e.g. "Bot Name").
+  !command              Any message starting with "!" also passes the gate
+  !ask <msg>            If you want the classic prefix gate, set
+                       command_prefix="!ask" in demo_main.py instead of "!".
+
+The demo harness handles these itself:
+  !help                 List commands in chat
+  !join <channel>       Join (or move to) a voice channel by name or ID.
+                        No name given = join the first voice channel on the
+                        server.
+  !leave                Leave the voice channel.
+Everything else that passes the gate (a mention, the bot's name, or any other
+!command) is forwarded to on_text() for your code to handle.
+
+A message that is neither a mention, doesn't contain the bot's name, and
+doesn't start with "!" is ignored, so the bridge can sit quietly in a busy
+channel.
+
+--------------------------------------------------------------------------------
+ VOICE CHANNEL (requires Connect + Speak permissions; optional)
+--------------------------------------------------------------------------------
+While joined and DISCORD_VC_LISTEN=1, the bridge listens for a wake word
+(default "bot name" / "bot") and then pipes the following phrase to your
+on_text() handler:
+
+  "bot name what time is it"      -> on_text receives "what time is it"
+  "bot name!"                     -> opens an 8s listening window (WAKE_ACTIVE_WINDOW)
+                                       then routes whatever is said to on_text()
+
+While the bot is speaking into the VC, incoming listening pauses so its own
+audio is not picked up through an open mic; it resumes when playback ends.
+
+Wake tuning (.env):
+  WAKE_WORDS            comma-separated wake phrases (default "bot name,bot")
+  WAKE_ACTIVE_WINDOW    seconds of listening after a wake word (default 8)
+  WAKE_PARTIAL_ARM      1 = arm on half-heard partial matches, 0 = only finished
+                        phrases (default 0). 1 catches earlier but may false-arm.
+
+--------------------------------------------------------------------------------
+ OUTBOUND (call these from ANY thread - they are thread-safe)
+--------------------------------------------------------------------------------
+  bridge.send_text(text, channel_id=None)
+      Post text. Defaults to all allowed channels; pass a channel_id to target
+      just one. Auto-splits messages longer than 1900 chars.
+
+  bridge.join_voice("name-or-id")   /  bridge.leave_voice()
+      Join/move/leave a voice channel. Returns True on success.
+
+  bridge.play_in_vc("clip.wav")
+      Play an audio file in the current voice channel (needs ffmpeg on PATH).
+
+  bridge.in_voice()
+      Returns True if the bot is currently in a voice channel.
+
+  bridge.wait_ready(timeout=15)
+      Returns True once the bot has logged in and knows its channels.
+
+--------------------------------------------------------------------------------
+ OOC TOGGLE (out-of-character) - NOT part of this kit
+--------------------------------------------------------------------------------
+This standalone kit only ships the Discord bridge (gate in / forward to
+on_text). It does NOT implement the out-of-character toggle ("ooc"/"ic",
+"!ooc"/"!ic") nor the OOC prompt swap. That logic lives in the brain layer of
+the bot this kit was lifted from, which this kit deliberately doesn't bundle.
+If you port this bridge into your own bot and want OOC, handle the toggle in
+your on_text() handler (match "ooc"/"ic" and swap persona there).
+================================================================================
