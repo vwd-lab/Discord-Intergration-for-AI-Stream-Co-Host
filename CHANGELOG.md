@@ -1,6 +1,6 @@
 # Changelog — sharing\Discord (MIT)
 
-Canonical working copy at `C:\Users\bbsti\AI Projects\Project AI Logan\sharing\Discord`.
+Canonical working copy at `C:\XXXXX\AI Projects\Project AI Logan\sharing\Discord`.
 
 Framework-agnostic Discord text + voice bridge. Transport-only: ships no brain,
 persona, TTS, or voice. Calls your `on_text(display, formatted, channel_id)`
